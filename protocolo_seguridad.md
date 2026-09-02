@@ -4,11 +4,11 @@ Cada vez que se aplica un script generado por IA sobre la base de datos, se ejec
 
 ## Entorno
 
-- **Motor:** PostgreSQL (base original: `food_store`, definida en `schema.sql`).
+- **Motor:** PostgreSQL (base original: `foodStore`, definida en `schema.sql`).
 - **Cliente SQL:** psql (terminal) y DBeaver (GUI).
   - **psql:** ejecutar `.sql` con `psql -U postgres -d <base> -f <archivo>.sql`, o copiar/pegar los bloques `BEGIN; ... ROLLBACK;` directamente en la terminal.
   - **DBeaver:** abrir la conexión correspondiente, abrir una "SQL Editor" (Alt+X) y ejecutar los mismos bloques `BEGIN; ... ROLLBACK;` con el icono ▶. DBeaver muestra "filas afectadas" en la pestaña de resultados de cada instrucción.
-- **Valores reales del entorno:** usuario de PostgreSQL = `postgres`, base original = `food_store` (según `README.md`, se crea con `createdb food_store`). Todos los comandos usan estos valores.
+- **Valores reales del entorno:** usuario de PostgreSQL = `postgres`, base original = **`foodStore`** (con `S` mayúscula; el `README.md` la llama `food_store`, pero en este servidor se creó como `foodStore`). **Ojo:** por ser un identificador con mayúscula, en los comandos debe ir entre comillas dobles: `"foodStore"` (si se escribe `foodStore` sin comillas, PostgreSQL lo normaliza a minúsculas y falla). Todos los comandos usan estos valores.
 - **Nunca** se toca la base original: todo el protocolo corre contra `copia_trabajo`.
 
 ---
@@ -18,14 +18,14 @@ Cada vez que se aplica un script generado por IA sobre la base de datos, se ejec
 **Objetivo:** nunca tocar la base original. Toda operación se hace sobre una copia.
 
 ```bash
-createdb -U postgres -T food_store copia_trabajo
+createdb -U postgres -T "foodStore" copia_trabajo
 ```
 
 Si la copia ya existe de una sesión anterior, eliminarla y recrearla:
 
 ```bash
 dropdb -U postgres copia_trabajo
-createdb -U postgres -T food_store copia_trabajo
+createdb -U postgres -T "foodStore" copia_trabajo
 ```
 
 **psql:**
@@ -33,12 +33,12 @@ createdb -U postgres -T food_store copia_trabajo
 ```sql
 -- Alternativa desde dentro de psql (requiere superuser)
 DROP DATABASE IF EXISTS copia_trabajo;
-CREATE DATABASE copia_trabajo TEMPLATE food_store;
+CREATE DATABASE copia_trabajo TEMPLATE "foodStore";
 ```
 
 **DBeaver:** crear nueva conexión apuntando a `copia_trabajo` en el mismo servidor.
 
-> La base original (`food_store`) queda intacta. Si algo sale mal, no hay nada que restaurar en la original.
+> La base original (`foodStore`) queda intacta. Si algo sale mal, no hay nada que restaurar en la original.
 
 ---
 
@@ -180,7 +180,7 @@ psql -U postgres -d copia_trabajo -f respaldo_pre_alter.sql
 ```
 ┌─────────────────────────────────────────────────────┐
 │  1. COPIA                                           │
-│     createdb -T food_store copia_trabajo      │
+│     createdb -T "foodStore" copia_trabajo     │
 │                                                     │
 │  2. TRANSACCIÓN                                     │
 │     BEGIN → script → ROLLBACK → inspeccionar        │
@@ -194,7 +194,7 @@ psql -U postgres -d copia_trabajo -f respaldo_pre_alter.sql
 
 ## Notas
 
-- **Nunca** ejecutar scripts directamente sobre `food_store`. Siempre sobre `copia_trabajo`.
+- **Nunca** ejecutar scripts directamente sobre `foodStore`. Siempre sobre `copia_trabajo`.
 - Los scripts de solo lectura (SELECT, EXPLAIN) no requieren transacción pero sí se ejecutan contra `copia_trabajo`.
 - Los dumps se guardan en la raíz del repositorio como `respaldo_pre_alter.dump`.
 - Si el script tiene errores de sintaxis SQL, corregirlo antes de aplicar el protocolo.
