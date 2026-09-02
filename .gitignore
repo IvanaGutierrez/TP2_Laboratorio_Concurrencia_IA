@@ -1,0 +1,8 @@
+# Artefactos locales (no se versionan)
+data.db
+*.dump
+*.sqlite
+*.sqlite3
+
+# Respaldo temporal del protocolo de seguridad
+respaldo_pre_alter.dump
